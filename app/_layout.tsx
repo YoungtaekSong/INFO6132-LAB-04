@@ -1,33 +1,37 @@
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Tabs } from 'expo-router';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
+import 'react-native-reanimated';
+
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+// Prevent the splash screen from auto-hiding before asset loading is complete.
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  return (
-    /*
-    <Stack>
-      <Stack.Screen name="index" />
-    </Stack>
-    */
-    <Tabs>
-      <Tabs.Screen
-        name="Home"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-          ),
-        }}
-      />
+  const colorScheme = useColorScheme();
+  const [loaded] = useFonts({
+    SpaceMono: require('@/assets/fonts/SpaceMono-Regular.ttf'),
+  });
 
-      <Tabs.Screen
-        name="Borrowed"
-        options={{
-          title: 'Borrowed',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'book' : 'book-outline'} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  if (!loaded) {
+    return null;
+  }
+
+  return (
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+    </ThemeProvider>
   );
 }
