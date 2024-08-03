@@ -6,8 +6,12 @@ import {
   Button,
   H2,
   Input,
+  Label,
+  RadioGroup,
   ScrollView,
+  SizeTokens,
   XGroup,
+  XStack,
   YStack
 } from 'tamagui';
 
@@ -17,11 +21,8 @@ export default function List() {
   const [searchType, setSearchType] = useState<'title' | 'author'>('title')
   const [searchKeyword, setSearchKeyword] = useState("harry+porter")
 
-  const bookApi = async (newSearch = false) => {
-    if (newSearch) {
-      //setPage(1)
-    }
 
+  const bookApi = async (newSearch = false) => {
     const bookApiUrl = `https://openlibrary.org/search.json?${searchType}=${searchKeyword}&sort=new&size=10`
     const response = await fetch(bookApiUrl)
     const data = await response.json()
@@ -49,6 +50,14 @@ export default function List() {
     <ScrollView paddingTop={safeAreaInsets.top} paddingHorizontal={20}>
       <YStack gap={10}>
         <H2>Home</H2>
+
+        <RadioGroup defaultValue="title" name="form">
+          <XStack alignItems="center" space="$2">
+            <RadioGroupItemWithLabel size="$3" value="title" label="Title" />
+            <RadioGroupItemWithLabel size="$3" value="author" label="Author" />
+          </XStack>
+        </RadioGroup>
+
         <XGroup>
           <Input
             flex={1}
@@ -59,11 +68,29 @@ export default function List() {
           <Button icon={<Ionicons name={'search'} size={24} />}
             onPress={() => bookApi(true)}
           />
-
         </XGroup>
       </YStack>
     </ScrollView>
   );
+}
+
+export function RadioGroupItemWithLabel(props: {
+  size: SizeTokens
+  value: string
+  label: string
+}) {
+  const id = `radiogroup-${props.value}`
+  return (
+    <XStack width={100} alignItems="center" space="$4">
+      <RadioGroup.Item value={props.value} id={id} size={props.size}>
+        <RadioGroup.Indicator />
+      </RadioGroup.Item>
+
+      <Label size={props.size} htmlFor={id}>
+        {props.label}
+      </Label>
+    </XStack>
+  )
 }
 
 const styles = StyleSheet.create({
