@@ -17,20 +17,20 @@ import {
 
 export default function List() {
   const safeAreaInsets = useSafeAreaInsets()
-  const [search, setSearch] = useState('')
-  const [searchType, setSearchType] = useState<'title' | 'author'>('title')
-  const [searchKeyword, setSearchKeyword] = useState("harry+porter")
-
+  const [searchType, setSearchType] = useState('title')
+  const [searchKeyword, setSearchKeyword] = useState('')
 
   const bookApi = async (newSearch = false) => {
     const bookApiUrl = `https://openlibrary.org/search.json?${searchType}=${searchKeyword}&sort=new&size=10`
     const response = await fetch(bookApiUrl)
     const data = await response.json()
 
+    console.log(bookApiUrl)
+
     if (response.ok) {
       if (data.num_found > 0) {
         console.log("==========")
-        console.log(data)
+        //console.log(data)
         console.log("==========")
       } else {
         console.log("==========")
@@ -51,7 +51,7 @@ export default function List() {
       <YStack gap={10}>
         <H2>Home</H2>
 
-        <RadioGroup defaultValue="title" name="form">
+        <RadioGroup defaultValue="title" name="form" onValueChange={(e) => { setSearchType(e) }}>
           <XStack alignItems="center" space="$2">
             <RadioGroupItemWithLabel size="$3" value="title" label="Title" />
             <RadioGroupItemWithLabel size="$3" value="author" label="Author" />
@@ -61,9 +61,9 @@ export default function List() {
         <XGroup>
           <Input
             flex={1}
-            placeholder={'Input keyword'}
-            value={search}
-            onChangeText={setSearch}
+            placeholder={'Input ' + searchType}
+            value={searchKeyword}
+            onChangeText={setSearchKeyword}
           />
           <Button icon={<Ionicons name={'search'} size={24} />}
             onPress={() => bookApi(true)}
