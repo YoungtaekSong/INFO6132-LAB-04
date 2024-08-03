@@ -4,8 +4,10 @@ import React from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useTheme } from 'tamagui';
 
 export default function TabLayout() {
+  const theme = useTheme()
   const colorScheme = useColorScheme();
 
   return (
