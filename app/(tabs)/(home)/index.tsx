@@ -1,3 +1,4 @@
+import { RadioGroupItemWithLabel } from '@/components/RadioGroupItemWithLabel';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
@@ -6,10 +7,8 @@ import {
   Button,
   H2,
   Input,
-  Label,
   RadioGroup,
   ScrollView,
-  SizeTokens,
   XGroup,
   XStack,
   YStack
@@ -21,24 +20,27 @@ export default function List() {
   const [searchKeyword, setSearchKeyword] = useState('')
 
   const bookApi = async (newSearch = false) => {
-    const bookApiUrl = `https://openlibrary.org/search.json?${searchType}=${searchKeyword}&sort=new&size=10`
-    const response = await fetch(bookApiUrl)
-    const data = await response.json()
 
-    console.log(bookApiUrl)
+    if (searchKeyword.length > 0) {
+      const bookApiUrl = `https://openlibrary.org/search.json?${searchType}=${searchKeyword}&sort=new&size=10`
+      const response = await fetch(bookApiUrl)
+      const data = await response.json()
 
-    if (response.ok) {
-      if (data.num_found > 0) {
-        console.log("==========")
-        //console.log(data)
-        console.log("==========")
+      if (response.ok) {
+        if (data.num_found > 0) {
+          console.log("==========")
+          console.log(data)
+          console.log("==========")
+        } else {
+          console.log("==========")
+          console.log("no result")
+          console.log("==========")
+        }
       } else {
-        console.log("==========")
-        console.log("no result")
-        console.log("==========")
+        console.log("api fail")
       }
     } else {
-      console.log("api fail")
+      console.log("searchKeyword is null")
     }
   }
 
@@ -72,25 +74,6 @@ export default function List() {
       </YStack>
     </ScrollView>
   );
-}
-
-export function RadioGroupItemWithLabel(props: {
-  size: SizeTokens
-  value: string
-  label: string
-}) {
-  const id = `radiogroup-${props.value}`
-  return (
-    <XStack width={100} alignItems="center" space="$4">
-      <RadioGroup.Item value={props.value} id={id} size={props.size}>
-        <RadioGroup.Indicator />
-      </RadioGroup.Item>
-
-      <Label size={props.size} htmlFor={id}>
-        {props.label}
-      </Label>
-    </XStack>
-  )
 }
 
 const styles = StyleSheet.create({
