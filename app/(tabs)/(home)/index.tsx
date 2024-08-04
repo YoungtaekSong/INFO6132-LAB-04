@@ -1,4 +1,5 @@
-import { RadioGroupItemWithLabel } from '@/components/RadioGroupItemWithLabel';
+import BookListItem from '@/components/BookListItem';
+import RadioGroupItemWithLabel from '@/components/RadioGroupItemWithLabel';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
@@ -9,8 +10,10 @@ import {
   Input,
   RadioGroup,
   ScrollView,
+  Separator,
   XGroup,
   XStack,
+  YGroup,
   YStack
 } from 'tamagui';
 
@@ -18,18 +21,25 @@ export default function List() {
   const safeAreaInsets = useSafeAreaInsets()
   const [searchType, setSearchType] = useState('title')
   const [searchKeyword, setSearchKeyword] = useState('')
+  const [bookList, setBookList] = useState([])
 
-  const bookApi = async (newSearch = false) => {
+  const bookApi = async () => {
+
+    console.log("----- click -------")
 
     if (searchKeyword.length > 0) {
-      const bookApiUrl = `https://openlibrary.org/search.json?${searchType}=${searchKeyword}&sort=new&size=10`
+      const keyword = searchKeyword.replace(/ /gi, '+')
+      const bookApiUrl = `https://openlibrary.org/search.json?${searchType}=${keyword}&sort=new&limit=10`
       const response = await fetch(bookApiUrl)
       const data = await response.json()
+
+      console.log(bookApiUrl)
 
       if (response.ok) {
         if (data.num_found > 0) {
           console.log("==========")
-          console.log(data)
+          console.log("OKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK")
+          setBookList((data.docs).slice(0, 100))
           console.log("==========")
         } else {
           console.log("==========")
@@ -68,9 +78,15 @@ export default function List() {
             onChangeText={setSearchKeyword}
           />
           <Button icon={<Ionicons name={'search'} size={24} />}
-            onPress={() => bookApi(true)}
+            onPress={() => { bookApi() }}
           />
         </XGroup>
+        <YGroup separator={<Separator width={'100%'} borderColor={'$color5'} />} >
+          {bookList.length > 0 &&
+            bookList.map((book, index) => (
+              <BookListItem key={index} content={book} />
+            ))}
+        </YGroup>
       </YStack>
     </ScrollView>
   );
