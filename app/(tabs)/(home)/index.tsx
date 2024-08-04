@@ -11,6 +11,7 @@ import {
   RadioGroup,
   ScrollView,
   Separator,
+  Spacer,
   Spinner,
   XGroup,
   XStack,
@@ -87,7 +88,18 @@ export default function List() {
             ))}
         </YGroup>
         {isLoading &&
-          <Spinner size="large" scale={1.5} color={'$color10'} />
+          <>
+            <YStack
+              padding={100}
+              gap={20}
+              alignItems="center"
+              height={'100%'}
+            >
+              <Spacer />
+              <Spinner size="large" scale={1.5} color={'$color10'} />
+              <Spacer />
+            </YStack>
+          </>
         }
       </YStack>
     </ScrollView>
