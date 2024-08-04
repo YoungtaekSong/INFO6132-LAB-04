@@ -1,3 +1,4 @@
+import { DefaultImage } from "@/assets/images/react-logo.png"
 import { useRouter } from 'expo-router'
 import React from 'react'
 import {
@@ -35,7 +36,9 @@ const BookListItem = ({ content }: any) => {
                         source={{
                             uri: content.cover_edition_key
                                 ? `https://covers.openlibrary.org/b/olid/${content.cover_edition_key}-M.jpg`
-                                : `https://covers.openlibrary.org/b/isbn/${content.isbn[0]}-M.jpg`
+                                : content.isbn
+                                    ? `https://covers.openlibrary.org/b/isbn/${content.isbn[0]}-M.jpg`
+                                    : DefaultImage
                         }}
                         width={100}
                         height={150}
