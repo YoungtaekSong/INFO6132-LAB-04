@@ -30,7 +30,7 @@ const Detail = ({ }: any) => {
 
   const fetchDetail = async () => {
     setIsLoading(true)
-    const detailUrl = `https://openlibrary.org/${bookInfo.key}.json`
+    const detailUrl = `https://openlibrary.org${bookInfo.key}.json`
     const response = await fetch(detailUrl)
     const data = await response.json()
 
@@ -99,12 +99,12 @@ const Detail = ({ }: any) => {
                 uri: bookInfo.cover_edition_key
                   ? `https://covers.openlibrary.org/b/olid/${bookInfo.cover_edition_key}-L.jpg`
                   : bookInfo.isbn
-                    ? `https://covers.openlibrary.org/b/isbn/${bookInfo.isbn[0]}-L.jpg`
+                    ? `https://covers.openlibrary.org/b/isbn/${bookInfo.isbn.split(',')[0]}-L.jpg`
                     : DefaultImage
               }}
-              width={'100%'}
               height={300}
             />
+
             {!isBorrowed
               ? <Button
                 iconAfter={<Ionicons name="book" size={20} />}
