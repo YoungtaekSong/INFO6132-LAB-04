@@ -11,6 +11,7 @@ import {
   RadioGroup,
   ScrollView,
   Separator,
+  Spinner,
   XGroup,
   XStack,
   YGroup,
@@ -21,6 +22,7 @@ export default function List() {
   const safeAreaInsets = useSafeAreaInsets()
   const [searchType, setSearchType] = useState('title')
   const [searchKeyword, setSearchKeyword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const [bookList, setBookList] = useState([])
 
   const bookApi = async () => {
@@ -28,8 +30,9 @@ export default function List() {
     console.log("----- click -------")
 
     if (searchKeyword.length > 0) {
+      setIsLoading(true)
       const keyword = searchKeyword.replace(/ /gi, '+')
-      const bookApiUrl = `https://openlibrary.org/search.json?${searchType}=${keyword}&sort=new&limit=10`
+      const bookApiUrl = `https://openlibrary.org/search.json?${searchType}=${keyword}&fields=title,author_name,key,cover_edition_key,isbn&sort=rating&limit=10`
       const response = await fetch(bookApiUrl)
       const data = await response.json()
 
@@ -37,21 +40,17 @@ export default function List() {
 
       if (response.ok) {
         if (data.num_found > 0) {
-          console.log("==========")
-          console.log("OKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK")
-          setBookList((data.docs).slice(0, 100))
-          console.log("==========")
+          setBookList(data.docs)
         } else {
-          console.log("==========")
-          console.log("no result")
-          console.log("==========")
+          setBookList([])
         }
       } else {
-        console.log("api fail")
+        setBookList([])
       }
     } else {
-      console.log("searchKeyword is null")
+      setBookList([])
     }
+    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -87,6 +86,9 @@ export default function List() {
               <BookListItem key={index} content={book} />
             ))}
         </YGroup>
+        {isLoading &&
+          <Spinner size="large" scale={1.5} color={'$color10'} />
+        }
       </YStack>
     </ScrollView>
   );

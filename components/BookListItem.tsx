@@ -1,5 +1,3 @@
-import DefaultImage from '@/assets/images/react-logo.png'
-import { SearchContentType } from '@/constants/Types'
 import { useRouter } from 'expo-router'
 import React from 'react'
 import {
@@ -13,25 +11,14 @@ import {
     YStack
 } from 'tamagui'
 
-export type ContentTileProps = {
-    content: SearchContentType
-}
-
-const BookListItem = ({ content }: ContentTileProps) => {
+const BookListItem = ({ content }: any) => {
     const router = useRouter()
 
-    const tilePressHandler = () => {
-        console.log(content.cover_edition_key)
-        console.log(content.author_key)
-        console.log(content.key)
-        console.log(content.isbn)
-        console.log("-----------------")
-        /*
+    const bookItemPressHandler = () => {
         router.push({
-            pathname: `(${content.Type})/detail`,
+            pathname: `/detail`,
             params: { ...content },
         })
-            */
     }
 
     return (
@@ -40,31 +27,24 @@ const BookListItem = ({ content }: ContentTileProps) => {
                 padding={0}
                 icon={null}
                 width={'100%'}
-                onPress={tilePressHandler}
+                onPress={bookItemPressHandler}
             >
                 <XStack gap={'$4'}>
-                    {content.cover_edition_key ?
-                        <Image
-                            margin={5}
-                            padding={10}
-                            source={{ uri: `https://covers.openlibrary.org/b/olid/${content.cover_edition_key}-M.jpg` }}
-                            width={100}
-                            height={150}
-                        />
-                        :
-                        <Image
-                            margin={5}
-                            padding={10}
-                            source={{ uri: DefaultImage }}
-                            width={100}
-                            height={150}
-                        />
-                    }
+                    <Image
+                        padding={10}
+                        source={{
+                            uri: content.cover_edition_key
+                                ? `https://covers.openlibrary.org/b/olid/${content.cover_edition_key}-M.jpg`
+                                : `https://covers.openlibrary.org/b/isbn/${content.isbn[0]}-M.jpg`
+                        }}
+                        width={100}
+                        height={150}
+                    />
                     <YStack gap={5} width={'60%'}>
                         <Spacer />
                         <H4 numberOfLines={1}>{content.title}</H4>
-                        <Text>{content.first_publish_year}</Text>
-                        <Text>{content.author}</Text>
+                        <Text>{content.first_publish_year ? content.first_publish_year : 'No information'}</Text>
+                        <Text numberOfLines={1}>{content.author_name ? content.author_name[0] : 'No information'}</Text>
                         <Spacer />
                     </YStack>
                 </XStack>
