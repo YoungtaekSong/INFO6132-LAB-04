@@ -1,4 +1,5 @@
 import { DefaultImage } from "@/assets/images/book-cover-not-available.png";
+import * as dbSvc from "@/database/service";
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { Key, useEffect, useState } from 'react';
@@ -17,10 +18,15 @@ import {
   YStack
 } from 'tamagui';
 
+import { firebaseDB } from '@/database/config';
+import { collection, onSnapshot } from 'firebase/firestore';
+
 const Detail = ({ }: any) => {
   const [content, setContent] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isBorrowed, setIsBorrowed] = useState(false)
+  const [allowBorrow, setAllowBorrow] = useState(false)
+  const [bookId, setBookId] = useState('')
   const [error, setError] = useState('')
   const bookInfo = useLocalSearchParams<any>()
 
@@ -30,48 +36,64 @@ const Detail = ({ }: any) => {
 
   const fetchDetail = async () => {
     setIsLoading(true)
+    getIsBorrowed()
+
+    onSnapshot(collection(firebaseDB, "Book"), {
+      next: (snapshot) => {
+        const data: any[] = []
+        snapshot.docs.forEach((doc) => {
+          data.push({
+            id: doc.data().id,
+            title: doc.data().title,
+            year: doc.data().year,
+            authors: doc.data().authors,
+            cover: doc.data().cover,
+            isbn: doc.data().isbn
+          })
+        })
+        if (data.length < 3) {
+          setAllowBorrow(true)
+        }
+      },
+    })
+
     const detailUrl = `https://openlibrary.org${bookInfo.key}.json`
     const response = await fetch(detailUrl)
     const data = await response.json()
-
-    console.log(detailUrl)
 
     if (response.ok) {
       setContent(data)
     } else {
       setError('Sorry, an error occurred. Please try again later.')
     }
+
     setIsLoading(false)
   }
 
+  const handleBorrowed = async () => {
 
-  const handleFav = async () => {
-    if (isBorrowed == true) {
-      /*
-      dbSvc.saveById(, {
-        cover: content?.cover,
-        isbn: content?.isbn,
-        year: content?.year,
-        key: bookInfo.key
-      })
-        */
-    } else {
-      //dbSvc.removeById(key)
-    }
-    setIsBorrowed(!isBorrowed)
+    console.log(bookInfo)
+
+    dbSvc.saveById(bookId, {
+      id: bookId,
+      title: bookInfo.title,
+      year: bookInfo.first_publish_year,
+      authors: bookInfo.author_name,
+      cover: bookInfo.cover_edition_key || "",
+      isbn: bookInfo.isbn ? bookInfo.isbn.split(',')[0] : ""
+    })
+    setIsBorrowed(true)
   }
 
   const getIsBorrowed = async () => {
-    /*
-    await dbSvc.getById(bookInfo.key).then((value) => {
-      setIsBorrowed(!value)
+    var bookId = bookInfo.key.split('/')[2]
+    setBookId(bookId)
+    await dbSvc.getById(bookId).then((value) => {
+      if (value) {
+        setIsBorrowed(true)
+      }
     })
-      */
   }
-
-  useEffect(() => {
-    getIsBorrowed()
-  }, [])
 
   return (
     <ScrollView paddingHorizontal={0}>
@@ -105,13 +127,11 @@ const Detail = ({ }: any) => {
               height={300}
             />
 
-            {!isBorrowed
-              ? <Button
-                iconAfter={<Ionicons name="book" size={20} />}
-                onPress={handleFav}
-                size="$3"
-              >Borrow</Button>
-              : <Button iconAfter={<Ionicons name="book" size={20} />} size="$3" disabled opacity={0.5}>Borrowed</Button>
+            {isBorrowed
+              ? <Button iconAfter={<Ionicons name="book" size={20} />} size="$3" disabled opacity={0.5}>Borrowed</Button>
+              : allowBorrow
+                ? <Button iconAfter={<Ionicons name="book" size={20} />} onPress={handleBorrowed} size="$3">Borrow</Button>
+                : <Button iconAfter={<Ionicons name="book" size={20} />} size="$3" disabled opacity={0.5}>Not allow to borrow</Button>
             }
 
             <YStack width={'100%'} gap={5}>
