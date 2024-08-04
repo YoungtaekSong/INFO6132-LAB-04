@@ -1,4 +1,4 @@
-import { DefaultImage } from "@/assets/images/react-logo.png"
+import { DefaultImage } from "@/assets/images/book-cover-not-available.png"
 import { useRouter } from 'expo-router'
 import React from 'react'
 import {
