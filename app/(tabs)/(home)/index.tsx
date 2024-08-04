@@ -33,7 +33,7 @@ export default function List() {
     if (searchKeyword.length > 0) {
       setIsLoading(true)
       const keyword = searchKeyword.replace(/ /gi, '+')
-      const bookApiUrl = `https://openlibrary.org/search.json?${searchType}=${keyword}&fields=title,author_name,key,cover_edition_key,isbn,first_publish_year&sort=rating&limit=10`
+      const bookApiUrl = `https://openlibrary.org/search.json?${searchType}=${keyword}&fields=title,author_name,key,cover_edition_key,isbn,first_publish_year,publish_date&sort=rating&limit=10`
       const response = await fetch(bookApiUrl)
       const data = await response.json()
 

@@ -1,102 +1,160 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { Image, Platform, StyleSheet } from 'react-native';
+import { DefaultImage } from "@/assets/images/book-cover-not-available.png";
+import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams } from 'expo-router';
+import { Key, useEffect, useState } from 'react';
+import {
+  Button,
+  H3,
+  H4,
+  H5,
+  Image,
+  Paragraph,
+  ScrollView,
+  Spacer,
+  Spinner,
+  Text,
+  XStack,
+  YStack
+} from 'tamagui';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const Detail = ({ }: any) => {
+  const [content, setContent] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isBorrowed, setIsBorrowed] = useState(false)
+  const [error, setError] = useState('')
+  const bookInfo = useLocalSearchParams<any>()
 
-export default function Detail() {
+  useEffect(() => {
+    fetchDetail()
+  }, [])
+
+  const fetchDetail = async () => {
+    setIsLoading(true)
+    const detailUrl = `https://openlibrary.org/${bookInfo.key}.json`
+    const response = await fetch(detailUrl)
+    const data = await response.json()
+
+    console.log(detailUrl)
+
+    if (response.ok) {
+      setContent(data)
+    } else {
+      setError('Sorry, an error occurred. Please try again later.')
+    }
+    setIsLoading(false)
+  }
+
+
+  const handleFav = async () => {
+    if (isBorrowed == true) {
+      /*
+      dbSvc.saveById(, {
+        cover: content?.cover,
+        isbn: content?.isbn,
+        year: content?.year,
+        key: bookInfo.key
+      })
+        */
+    } else {
+      //dbSvc.removeById(key)
+    }
+    setIsBorrowed(!isBorrowed)
+  }
+
+  const getIsBorrowed = async () => {
+    /*
+    await dbSvc.getById(bookInfo.key).then((value) => {
+      setIsBorrowed(!value)
+    })
+      */
+  }
+
+  useEffect(() => {
+    getIsBorrowed()
+  }, [])
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText> library
-          to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
-  );
+    <ScrollView paddingHorizontal={0}>
+      {isLoading && (
+        <>
+          <YStack
+            padding={100}
+            gap={20}
+            alignItems="center"
+            height={'100%'}
+          >
+            <Spacer />
+            <Spinner size="large" scale={1.5} color={'$color10'} />
+            <Spacer />
+          </YStack>
+        </>
+      )}
+
+      {content != null && (
+        <>
+          <YStack padding={10} gap={10}>
+            <Image
+              padding={10}
+              source={{
+                uri: bookInfo.cover_edition_key
+                  ? `https://covers.openlibrary.org/b/olid/${bookInfo.cover_edition_key}-L.jpg`
+                  : bookInfo.isbn
+                    ? `https://covers.openlibrary.org/b/isbn/${bookInfo.isbn[0]}-L.jpg`
+                    : DefaultImage
+              }}
+              width={'100%'}
+              height={300}
+            />
+            {!isBorrowed
+              ? <Button
+                iconAfter={<Ionicons name="book" size={20} />}
+                onPress={handleFav}
+                size="$3"
+              >Borrow</Button>
+              : <Button iconAfter={<Ionicons name="book" size={20} />} size="$3" disabled opacity={0.5}>Borrowed</Button>
+            }
+
+            <YStack width={'100%'} gap={5}>
+              <H3 numberOfLines={2}>
+                {bookInfo.title}
+              </H3>
+
+              <XStack gap={10}>
+                <H4>First Publish Year:</H4>
+                <H5 marginTop={4}>
+                  {bookInfo.first_publish_year}
+                </H5>
+              </XStack>
+
+              <H4>Authors</H4>
+              <Text>&nbsp;&nbsp;- {bookInfo.author_name}</Text>
+
+              <YStack>
+                <H4>Description</H4>
+                <YStack padding={10}>
+                  {content.description
+                    ? <Paragraph>{content.description.value}</Paragraph>
+                    : <Paragraph>No information</Paragraph>
+                  }
+                </YStack>
+              </YStack>
+
+              <YStack>
+                <H4>Scripts</H4>
+                {
+                  content.subjects && content.subjects.length > 0
+                    ? content.subjects.map((subject: any, index: Key | null | undefined) => (<Text key={index}>&nbsp;&nbsp;- {subject}</Text>))
+                    : <Text>No information</Text>
+                }
+              </YStack>
+
+            </YStack>
+          </YStack>
+        </>
+      )
+      }
+    </ScrollView >
+  )
 }
 
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});
+export default Detail
