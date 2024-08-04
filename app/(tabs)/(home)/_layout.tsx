@@ -29,7 +29,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="detail" options={{ headerShown: false }} />
+        <Stack.Screen name="detail" options={{ title: 'Detail', headerBackTitle: 'Home', headerShown: true }} />
       </Stack>
     </ThemeProvider>
   );
