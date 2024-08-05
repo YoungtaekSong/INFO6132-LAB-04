@@ -1,102 +1,74 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform } from 'react-native';
+import BorrowedListItem from '@/components/BorrowedListItem';
+import { useEffect, useState } from 'react';
+import {
+  ScrollView,
+  Separator,
+  Spacer,
+  Spinner,
+  YGroup,
+  YStack
+} from 'tamagui';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { firebaseDB } from '@/database/config';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function TabTwoScreen() {
+export default function Borrowed() {
+  const safeAreaInsets = useSafeAreaInsets()
+  const [isLoading, setIsLoading] = useState(false)
+  const [borrowedList, setBorrowedList] = useState<any>([])
+  const [bookId, setBookId] = useState('')
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetchDetail()
+  }, [])
+
+  const fetchDetail = async () => {
+    setIsLoading(true)
+
+    onSnapshot(collection(firebaseDB, "Book"), {
+      next: (snapshot) => {
+        const data: any[] = []
+        snapshot.docs.forEach((doc) => {
+          data.push({
+            id: doc.data().id,
+            title: doc.data().title,
+            year: doc.data().year,
+            authors: doc.data().authors,
+            cover: doc.data().cover,
+            isbn: doc.data().isbn
+          })
+        })
+        setBorrowedList(data)
+      },
+    })
+
+    setIsLoading(false)
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText> library
-          to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <ScrollView paddingTop={safeAreaInsets.top} paddingHorizontal={20}>
+      <YGroup separator={<Separator width={'100%'} borderColor={'$color5'} />} >
+        {borrowedList.length > 0 &&
+          borrowedList.map((book: any, index: any) => (
+            <BorrowedListItem key={index} content={book} />
+          ))}
+      </YGroup>
+      {isLoading &&
+        <>
+          <YStack
+            padding={100}
+            gap={20}
+            alignItems="center"
+            height={'100%'}
+          >
+            <Spacer />
+            <Spinner size="large" scale={1.5} color={'$color10'} />
+            <Spacer />
+          </YStack>
+        </>
+      }
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});

@@ -1,3 +1,4 @@
+import { firebaseDB } from '@/database/config'
 import {
     addDoc,
     collection,
@@ -8,7 +9,6 @@ import {
     setDoc,
     updateDoc,
 } from 'firebase/firestore'
-import { firebaseDB } from './config'
 
 const ROOT = "Book"
 
@@ -27,10 +27,6 @@ export async function getBorrowedList() {
                     isbn: doc.data().isbn
                 })
             })
-            console.log("----db----")
-            console.log(data)
-            console.log(data.length)
-            console.log("----db----")
             return data
         },
     })

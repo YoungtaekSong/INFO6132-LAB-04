@@ -46,7 +46,7 @@ const BookListItem = ({ content }: any) => {
                     <YStack gap={5} width={'60%'}>
                         <Spacer />
                         <H4 numberOfLines={1}>{content.title}</H4>
-                        <Text>{content.first_publish_year ? content.first_publish_year : 'No information'}</Text>
+                        <Text>{content.first_publish_year || 'No information'}</Text>
                         <Text numberOfLines={2}>{content.author_name ? content.author_name.join(', ') : 'No information'}</Text>
                         <Spacer />
                     </YStack>
